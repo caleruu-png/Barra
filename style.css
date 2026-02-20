@@ -1,0 +1,98 @@
+:root {
+    --bg: #0f0f0f;
+    --card: #1e1e1e;
+    --text: #ffffff;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    touch-action: manipulation; /* Evita zoom accidental en móviles */
+}
+
+.tpv-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 15px;
+}
+
+.header {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+}
+
+#total-display {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--success);
+}
+
+.currency { font-size: 1.5rem; color: var(--success); margin-left: 5px; }
+
+#btn-pagado {
+    width: 100%;
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+.grid-productos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn {
+    background: #2a2a2a;
+    color: white;
+    border: none;
+    padding: 25px 10px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    border-bottom: 4px solid #444;
+}
+
+.btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+.btn span { font-size: 0.8rem; opacity: 0.6; }
+
+/* Colores de Borde por Precio */
+.azul { border-color: #3498db; }
+.amarillo { border-color: #f1c40f; }
+.naranja { border-color: #e67e22; }
+.verde { border-color: #2ecc71; }
+.morado { border-color: #9b59b6; }
+.rojo { border-color: #e74c3c; }
+
+.btn-deshacer {
+    width: 100%;
+    background: transparent;
+    color: #888;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 8px;
+}

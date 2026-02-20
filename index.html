@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPV Barra - Control de Cuenta</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>TPV BARRA</h1>
+            <div class="total-display">
+                <span id="total-amount">0.00</span>€
+            </div>
+            <button id="btn-pagado" onclick="resetearCuenta()">PAGADO</button>
+        </header>
+
+        <main class="grid-productos">
+            <button class="btn-producto azul" onclick="sumar(1.00)">Agua <span>1.00€</span></button>
+            <button class="btn-producto azul" onclick="sumar(1.00)">Vino <span>1.00€</span></button>
+
+            <button class="btn-producto amarillo" onclick="sumar(1.50)">Cerveza <span>1.50€</span></button>
+            <button class="btn-producto amarillo" onclick="sumar(1.50)">Tinto Verano <span>1.50€</span></button>
+
+            <button class="btn-producto naranja" onclick="sumar(2.00)">Refresco <span>2.00€</span></button>
+
+            <button class="btn-producto verde" onclick="sumar(2.50)">Montadito <span>2.50€</span></button>
+
+            <button class="btn-producto morado" onclick="sumar(4.00)">Combinado <span>4.00€</span></button>
+
+            <button class="btn-producto rojo" onclick="sumar(8.00)">R. Lomo <span>8.00€</span></button>
+            <button class="btn-producto rojo" onclick="sumar(8.00)">R. Jamón <span>8.00€</span></button>
+            <button class="btn-producto rojo" onclick="sumar(8.00)">R. Queso <span>8.00€</span></button>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
