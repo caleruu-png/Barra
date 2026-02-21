@@ -1,6 +1,6 @@
 // CONFIGURACIÓN SUPABASE
-const SUPABASE_URL = "https://yfhzogdtiubkbzrxbugu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_4s7OZ9kj2QvNUOJDGkaPyw_vn9BWIeR";
+const SUPABASE_URL = "https://nxlvjryyqjchvjlwzayg.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54bHZqcnl5cWpjaHZqbHd6YXlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTAyNDIsImV4cCI6MjA2OTk4NjI0Mn0.5275f53113002311798170471501568026655182504177242144587790695941";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentPin = "";
@@ -95,7 +95,7 @@ window.openTickets = () => {
     selectedMesaId = null;
     currentTotal = 0;
     historyItems = [];
-    document.getElementById('pos-title').innerText = "Venta Tickets";
+    document.getElementById('pos-title').innerText = "Venta Directa";
     updatePOSDisplay();
     showView('pos-screen');
 };
@@ -139,34 +139,14 @@ window.addCash = (amount) => {
 };
 window.finalizePayment = async () => {
     if (currentTotal === 0) return;
-    
-    // 1. Registrar venta
     await supabaseClient.from('ventas').insert([{ monto: currentTotal }]);
-    
-    // 2. Si es mesa, desactivar y limpiar
-    if (selectedMesaId) {
-        await supabaseClient.from('mesas').update({ total: 0, activa: false }).eq('id', selectedMesaId);
-        document.getElementById('cash-modal').style.display = 'none';
-        backToMain(); // Las mesas vuelven al grid
-    } else {
-        // 3. MODO TICKETS: Solo limpiar y quedarse en la calculadora
-        currentTotal = 0;
-        historyItems = [];
-        updatePOSDisplay();
-        document.getElementById('cash-modal').style.display = 'none';
-        // No llamamos a backToMain, nos quedamos aquí
-    }
+    if (selectedMesaId) await supabaseClient.from('mesas').update({ total: 0, activa: false }).eq('id', selectedMesaId);
+    document.getElementById('cash-modal').style.display = 'none';
+    backToMain();
 };
-
 window.backToMain = () => {
-    // Si pulsamos el botón "Volver" manualmente
-    if (currentRole === 'tickets') {
-        logout(); // Solo sale si el usuario lo pide pulsando "Volver"
-    } else {
-        showingInactivas = false;
-        loadMesas(false);
-        showView('mesa-grid-screen');
-    }
+    if (currentRole === 'tickets') logout();
+    else { loadMesas(false); showView('mesa-grid-screen'); }
 };
 
 async function loadStats() {
