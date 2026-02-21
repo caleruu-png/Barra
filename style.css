@@ -8,16 +8,22 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
+  height: 100vh;
   overflow: hidden;
   user-select: none;
 }
 
+#app {
+  height: 100%;
+  width: 100%;
+}
+
 .view {
   display: none;
-  height: 100vh;
+  height: 100%;
   flex-direction: column;
   padding: 20px;
   box-sizing: border-box;
@@ -32,25 +38,46 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  gap: 10px;
 }
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .btn-sm {
-  padding: 8px 15px;
+  padding: 12px 18px;
   border-radius: 8px;
   border: none;
   background: var(--card);
   color: white;
   cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+.btn-neon {
+  background: var(--neon);
+  color: black;
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid #475569;
+}
+.btn-danger {
+  background: var(--danger);
+  color: white;
 }
 
 /* Grid Mesas */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 15px;
+  overflow-y: auto;
 }
 .mesa-card {
   background: var(--card);
-  padding: 20px;
+  padding: 25px 15px;
   border-radius: 12px;
   text-align: center;
   border-bottom: 4px solid var(--neon);
@@ -58,89 +85,56 @@ header {
 }
 .mesa-card.inactive {
   border-color: #475569;
-  opacity: 0.6;
+  opacity: 0.5;
+  border-bottom: 1px solid #475569;
 }
 
 /* POS / Calculadora */
 .display-total {
-  font-size: 4rem;
+  font-size: 5rem;
   text-align: center;
   color: var(--neon);
-  font-weight: bold;
-  margin: 20px 0;
+  font-weight: 800;
+  margin: 10px 0;
 }
 .price-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 10px;
   flex-grow: 1;
 }
 .price-buttons button {
   background: var(--card);
   border: 1px solid #334155;
   border-radius: 15px;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: white;
   position: relative;
-  cursor: pointer;
 }
-.price-buttons button small {
+.badge {
   position: absolute;
   top: 10px;
   right: 10px;
   background: var(--neon);
   color: black;
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 0.9rem;
 }
 
 .btn-pay {
   background: var(--neon);
   color: black;
-  font-weight: bold;
-  padding: 20px;
+  font-weight: 900;
+  padding: 25px;
   border-radius: 15px;
   border: none;
-  font-size: 1.5rem;
-  margin-top: 20px;
-}
-
-/* Login */
-.login-container {
-  max-width: 320px;
-  margin: auto;
-  text-align: center;
-}
-#pin-input {
+  font-size: 1.8rem;
   width: 100%;
-  font-size: 2rem;
-  text-align: center;
-  background: transparent;
-  border: none;
-  color: var(--neon);
-  margin-bottom: 20px;
-  letter-spacing: 10px;
-}
-.numpad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.numpad button {
-  padding: 20px;
-  font-size: 1.5rem;
-  border-radius: 10px;
-  border: none;
-  background: var(--card);
-  color: white;
+  margin-top: 10px;
 }
 
-/* Modals */
+/* Modales */
 .modal {
   display: none;
   position: fixed;
@@ -148,10 +142,10 @@ header {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
 }
 .modal-content {
   background: var(--card);
@@ -160,22 +154,107 @@ header {
   width: 90%;
   max-width: 400px;
 }
+.modal-input {
+  width: 100%;
+  padding: 15px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: white;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  margin: 20px 0;
+  box-sizing: border-box;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Login */
+.login-container {
+  max-width: 350px;
+  margin: auto;
+  text-align: center;
+}
+#pin-input {
+  width: 100%;
+  font-size: 3rem;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--neon);
+  letter-spacing: 15px;
+  margin-bottom: 20px;
+}
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+.numpad button {
+  padding: 25px;
+  font-size: 1.8rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--card);
+  color: white;
+  aspect-ratio: 1/1;
+}
+.btn-enter {
+  background: var(--neon) !important;
+  color: black !important;
+  border-radius: 15px !important;
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: var(--card);
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+.cash-display {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: var(--neon);
+  font-weight: bold;
+}
 .bill-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 .bill-grid button {
-  padding: 15px;
+  padding: 20px;
   border-radius: 10px;
   border: none;
   background: #334155;
   color: white;
-  font-size: 1.2rem;
-}
-.neon-text {
-  color: var(--neon);
-  font-size: 2.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
+}
+.change-info {
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  border-top: 1px solid #334155;
+  padding-top: 15px;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }

@@ -1,157 +1,176 @@
-// CONFIGURACIÓN SUPABASE - COMPLETA CON TUS DATOS
+// CONFIGURACIÓN SUPABASE
 const SUPABASE_URL = "https://yfhzogdtiubkbzrxbugu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_4s7OZ9kj2QvNUOJDGkaPyw_vn9BWIeR";
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentPin = "";
 let currentRole = "";
 let selectedMesaId = null;
 let currentTotal = 0;
 let cashReceived = 0;
-let history = [];
+let historyItems = [];
+let showingInactivas = false;
 
-// --- NAVEGACIÓN Y LOGIN ---
-function addPin(num) {
+// --- LOGIN ---
+window.addPin = (num) => {
     if (currentPin.length < 4) {
         currentPin += num;
         document.getElementById('pin-input').value = "*".repeat(currentPin.length);
     }
-}
-
-function clearPin() {
+};
+window.clearPin = () => {
     currentPin = "";
     document.getElementById('pin-input').value = "";
-}
-
-function login() {
+};
+window.login = () => {
     if (currentPin === "1234") { currentRole = "admin"; showView('admin-screen'); loadStats(); }
-    else if (currentPin === "0000") { currentRole = "barra"; showView('mesa-grid-screen'); loadMesas(); }
+    else if (currentPin === "0000") { currentRole = "barra"; showView('mesa-grid-screen'); loadMesas(false); }
     else if (currentPin === "1111") { currentRole = "tickets"; openTickets(); }
     else { alert("PIN Incorrecto"); clearPin(); }
-}
+};
+window.logout = () => { currentPin = ""; clearPin(); showView('login-screen'); };
 
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
 }
 
-function logout() {
-    currentPin = "";
-    clearPin();
-    showView('login-screen');
-}
-
-// --- LÓGICA DE MESAS ---
-async function loadMesas(showInactiva = false) {
-    const { data } = await _supabase.from('mesas').select('*').eq('activa', !showInactiva);
+// --- GESTIÓN DE MESAS ---
+window.loadMesas = async (inactivas = false) => {
+    const { data } = await supabaseClient.from('mesas').select('*').eq('activa', !inactivas).order('id', { ascending: false });
     const container = document.getElementById('mesas-container');
     container.innerHTML = "";
-    data.forEach(mesa => {
+    data?.forEach(mesa => {
         const div = document.createElement('div');
         div.className = `mesa-card ${!mesa.activa ? 'inactive' : ''}`;
         div.innerHTML = `<h3>${mesa.nombre}</h3><p>${mesa.total}€</p>`;
         div.onclick = () => selectMesa(mesa);
         container.appendChild(div);
     });
-}
+};
 
-function showInactivas() {
-    loadMesas(true);
-}
+window.toggleMesasView = () => {
+    showingInactivas = !showingInactivas;
+    document.getElementById('btn-toggle-mesas').innerText = showingInactivas ? "Ver Activas" : "Reactivar Mesa";
+    loadMesas(showingInactivas);
+};
+
+// NUEVAS FUNCIONES DE CREACIÓN
+window.openMesaModal = () => {
+    document.getElementById('new-mesa-name').value = "";
+    document.getElementById('create-mesa-modal').style.display = 'flex';
+};
+window.closeMesaModal = () => {
+    document.getElementById('create-mesa-modal').style.display = 'none';
+};
+window.createNewMesa = async () => {
+    const name = document.getElementById('new-mesa-name').value;
+    if (!name) return alert("Escribe un nombre para la mesa");
+    
+    const { error } = await supabaseClient.from('mesas').insert([{ nombre: name, total: 0, activa: true }]);
+    if (error) alert("Error al crear mesa");
+    else {
+        closeMesaModal();
+        loadMesas(false);
+    }
+};
 
 async function selectMesa(mesa) {
+    if (!mesa.activa) {
+        if (confirm("¿Reactivar mesa?")) {
+            await supabaseClient.from('mesas').update({ activa: true }).eq('id', mesa.id);
+            loadMesas(false);
+        }
+        return;
+    }
     selectedMesaId = mesa.id;
-    currentTotal = parseFloat(mesa.total);
+    currentTotal = parseFloat(mesa.total) || 0;
+    historyItems = [];
     document.getElementById('pos-title').innerText = mesa.nombre;
     updatePOSDisplay();
     showView('pos-screen');
-    
-    // Suscribirse a cambios en tiempo real para esta mesa
-    _supabase.channel('custom-all-channel')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${mesa.id}` }, payload => {
-        currentTotal = payload.new.total;
-        updatePOSDisplay();
-    }).subscribe();
 }
 
-function openTickets() {
+window.openTickets = () => {
     selectedMesaId = null;
     currentTotal = 0;
-    document.getElementById('pos-title').innerText = "Venta Directa";
+    historyItems = [];
+    document.getElementById('pos-title').innerText = "Venta Tickets";
     updatePOSDisplay();
     showView('pos-screen');
-}
+};
 
-// --- LÓGICA DE COBRO ---
-async function addToAccount(price) {
+// --- CALCULADORA ---
+window.addToAccount = async (price) => {
     currentTotal += price;
-    history.push(price);
+    historyItems.push(price);
     updatePOSDisplay();
-    if (selectedMesaId) {
-        await _supabase.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
-    }
-}
-
-async function undoLast() {
-    if (history.length > 0) {
-        const lastPrice = history.pop();
-        currentTotal -= lastPrice;
+    if (selectedMesaId) await supabaseClient.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
+};
+window.undoLast = async () => {
+    if (historyItems.length > 0) {
+        currentTotal -= historyItems.pop();
+        if (currentTotal < 0) currentTotal = 0;
         updatePOSDisplay();
-        if (selectedMesaId) {
-            await _supabase.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
-        }
+        if (selectedMesaId) await supabaseClient.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
     }
-}
-
+};
 function updatePOSDisplay() {
     document.getElementById('total-amount').innerText = currentTotal.toFixed(2);
-    // Limpiar contadores visuales (simplificado)
-    const counts = [1, 1.5, 2, 2.5, 4, 8];
-    counts.forEach(c => {
-        const el = document.getElementById(`count-${c.toString().replace('.','-')}`);
-        if(el) el.innerText = history.filter(x => x === c).length;
+    [1, 1.5, 2, 2.5, 4, 8].forEach(p => {
+        const id = `badge-${p.toString().replace('.', '-')}`;
+        const count = historyItems.filter(x => x === p).length;
+        const el = document.getElementById(id);
+        if (el) { el.innerText = count; el.style.display = count > 0 ? "flex" : "none"; }
     });
 }
 
-// --- MÓDULO DE EFECTIVO ---
-function openCashModal() {
+// --- COBRO ---
+window.openCashModal = () => {
     cashReceived = 0;
     document.getElementById('cash-input-display').innerText = "0€";
     document.getElementById('change-amount').innerText = "0.00";
     document.getElementById('cash-modal').style.display = 'flex';
-}
-
-function addCash(amount) {
+};
+window.addCash = (amount) => {
     cashReceived += amount;
     document.getElementById('cash-input-display').innerText = cashReceived + "€";
-    const change = cashReceived - currentTotal;
-    document.getElementById('change-amount').innerText = (change > 0 ? change : 0).toFixed(2);
-}
-
-async function finalizePayment() {
-    // 1. Registrar Venta
-    await _supabase.from('ventas').insert([{ monto: currentTotal }]);
+    document.getElementById('change-amount').innerText = Math.max(0, cashReceived - currentTotal).toFixed(2);
+};
+window.finalizePayment = async () => {
+    if (currentTotal === 0) return;
+    
+    // 1. Registrar venta
+    await supabaseClient.from('ventas').insert([{ monto: currentTotal }]);
     
     // 2. Si es mesa, desactivar y limpiar
     if (selectedMesaId) {
-        await _supabase.from('mesas').update({ total: 0, activa: false }).eq('id', selectedMesaId);
+        await supabaseClient.from('mesas').update({ total: 0, activa: false }).eq('id', selectedMesaId);
+        document.getElementById('cash-modal').style.display = 'none';
+        backToMain(); // Las mesas vuelven al grid
+    } else {
+        // 3. MODO TICKETS: Solo limpiar y quedarse en la calculadora
+        currentTotal = 0;
+        historyItems = [];
+        updatePOSDisplay();
+        document.getElementById('cash-modal').style.display = 'none';
+        // No llamamos a backToMain, nos quedamos aquí
     }
-    
-    closeModal();
-    alert("Pago finalizado con éxito");
-    history = [];
-    backToMain();
-}
+};
 
-function closeModal() { document.getElementById('cash-modal').style.display = 'none'; }
-
-function backToMain() {
-    if (currentRole === 'tickets') logout();
-    else { loadMesas(); showView('mesa-grid-screen'); }
-}
+window.backToMain = () => {
+    // Si pulsamos el botón "Volver" manualmente
+    if (currentRole === 'tickets') {
+        logout(); // Solo sale si el usuario lo pide pulsando "Volver"
+    } else {
+        showingInactivas = false;
+        loadMesas(false);
+        showView('mesa-grid-screen');
+    }
+};
 
 async function loadStats() {
-    const { data } = await _supabase.from('ventas').select('monto');
-    const total = data.reduce((acc, v) => acc + parseFloat(v.monto), 0);
+    const { data } = await supabaseClient.from('ventas').select('monto');
+    const total = data?.reduce((acc, v) => acc + parseFloat(v.monto), 0) || 0;
     document.getElementById('total-ventas-val').innerText = total.toFixed(2) + "€";
 }
