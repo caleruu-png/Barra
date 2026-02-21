@@ -3,68 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Bar Cloud</title>
+    <title>NeoTPV Pro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
     <div id="app">
-        <section id="view-login" class="view">
+        <section id="login-screen" class="view active">
             <div class="login-container">
-                <h1>TPV CLOUD</h1>
-                <input type="password" id="pin-display" placeholder="PIN" readonly>
-                <div class="pin-grid">
+                <h1>NEO<span>TPV</span></h1>
+                <input type="password" id="pin-input" placeholder="Introduce PIN" readonly>
+                <div class="numpad">
                     <button onclick="addPin('1')">1</button><button onclick="addPin('2')">2</button><button onclick="addPin('3')">3</button>
                     <button onclick="addPin('4')">4</button><button onclick="addPin('5')">5</button><button onclick="addPin('6')">6</button>
                     <button onclick="addPin('7')">7</button><button onclick="addPin('8')">8</button><button onclick="addPin('9')">9</button>
-                    <button onclick="clearPin()">C</button><button onclick="addPin('0')">0</button><button onclick="checkLogin()">OK</button>
+                    <button class="btn-clear" onclick="clearPin()">C</button><button onclick="addPin('0')">0</button>
+                    <button class="btn-enter" onclick="login()">OK</button>
                 </div>
             </div>
         </section>
 
-        <section id="view-admin" class="view hidden">
+        <section id="mesa-grid-screen" class="view">
             <header>
-                <h2>Dashboard Admin</h2>
-                <button onclick="logout()" class="btn-exit">Cerrar Sesión</button>
+                <button class="btn-sm" onclick="logout()">Salir</button>
+                <h2>Panel de Mesas</h2>
+                <button class="btn-sm btn-neon" onclick="showInactivas()">Reactivar Mesa</button>
             </header>
-            <div class="stats-grid">
-                <div class="card"><h3>Caja Actual</h3><p id="stat-caja">0.00€</p></div>
-                <div class="card"><h3>Ventas Hoy</h3><p id="stat-ventas">0.00€</p></div>
-            </div>
-            <button onclick="cambiarVista('view-barra')" class="btn-access">Ir a Barra</button>
+            <div id="mesas-container" class="grid-container"></div>
         </section>
 
-        <section id="view-barra" class="view hidden">
+        <section id="pos-screen" class="view">
             <header>
-                <button onclick="logout()">Logout</button>
-                <div class="crear-mesa">
-                    <input type="text" id="input-mesa" placeholder="Nombre Mesa/Cliente">
-                    <button onclick="dbCrearMesa()">+</button>
+                <button class="btn-sm" onclick="backToMain()">Volver</button>
+                <h2 id="pos-title">Venta de Tickets</h2>
+                <button class="btn-sm btn-danger" onclick="undoLast()">Deshacer</button>
+            </header>
+            <div class="display-total">
+                <span id="total-amount">0.00</span>€
+            </div>
+            <div class="price-buttons">
+                <button onclick="addToAccount(1)">1€ <small id="count-1">0</small></button>
+                <button onclick="addToAccount(1.5)">1.5€ <small id="count-1-5">0</small></button>
+                <button onclick="addToAccount(2)">2€ <small id="count-2">0</small></button>
+                <button onclick="addToAccount(2.5)">2.5€ <small id="count-2-5">0</small></button>
+                <button onclick="addToAccount(4)">4€ <small id="count-4">0</small></button>
+                <button onclick="addToAccount(8)">8€ <small id="count-8">0</small></button>
+            </div>
+            <button class="btn-pay" onclick="openCashModal()">COBRAR</button>
+        </section>
+
+        <section id="admin-screen" class="view">
+            <header>
+                <button class="btn-sm" onclick="logout()">Salir</button>
+                <h2>Estadísticas</h2>
+            </header>
+            <div class="stats-card">
+                <h3>Ventas Totales</h3>
+                <p id="total-ventas-val" class="neon-text">0.00€</p>
+            </div>
+        </section>
+
+        <div id="cash-modal" class="modal">
+            <div class="modal-content">
+                <h3>Efectivo Recibido</h3>
+                <div class="cash-display" id="cash-input-display">0</div>
+                <div class="bill-grid">
+                    <button onclick="addCash(5)">5€</button>
+                    <button onclick="addCash(10)">10€</button>
+                    <button onclick="addCash(20)">20€</button>
+                    <button onclick="addCash(50)">50€</button>
                 </div>
-            </header>
-            <div id="grid-mesas" class="grid-mesas"></div>
-        </section>
-
-        <section id="view-cobro" class="view hidden">
-            <header>
-                <button onclick="irAMesas()" id="btn-volver-mesas">⬅ Mesas</button>
-                <h2 id="mesa-titulo">Mesa</h2>
-                <div class="main-display"><span id="total-display">0.00</span>€</div>
-            </header>
-            
-            <div id="teclado-precios" class="grid-precios">
-                <button class="btn p1" onclick="dbSumar(1)">1.00</button>
-                <button class="btn p15" onclick="dbSumar(1.5)">1.50</button>
-                <button class="btn p2" onclick="dbSumar(2)">2.00</button>
-                <button class="btn p25" onclick="dbSumar(2.5)">2.50</button>
-                <button class="btn p4" onclick="dbSumar(4)">4.00</button>
-                <button class="btn p8" onclick="dbSumar(8)">8.00</button>
+                <div class="change-info">Cambio: <span id="change-amount">0.00</span>€</div>
+                <div class="modal-actions">
+                    <button onclick="closeModal()">Cancelar</button>
+                    <button class="btn-neon" onclick="finalizePayment()">Finalizar Pago</button>
+                </div>
             </div>
-            <button id="btn-pagar" onclick="dbFinalizarVenta()">COBRAR</button>
-        </section>
+        </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

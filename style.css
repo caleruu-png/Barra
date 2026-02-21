@@ -1,250 +1,181 @@
-/* VARIABLES DE COLOR */
 :root {
-  --bg-color: #121212;
-  --card-bg: #1e1e1e;
-  --text-color: #ffffff;
-  --accent-color: #00ff88; /* Verde Neón */
-  --danger-color: #ff4757; /* Rojo */
-  --admin-color: #3498db; /* Azul */
-  --font-main: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  --bg: #0f172a;
+  --card: #1e293b;
+  --neon: #22c55e;
+  --danger: #ef4444;
+  --text: #f8fafc;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  font-family: var(--font-main);
   margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+}
+
+.view {
+  display: none;
+  height: 100vh;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.view.active {
   display: flex;
-  justify-content: center;
-  min-height: 100vh;
 }
 
-#app {
-  width: 100%;
-  max-width: 500px;
-  padding: 15px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* --- VISTA LOGIN --- */
-.login-container {
-  text-align: center;
-  margin-top: 50px;
-}
-
-#pin-display {
-  width: 100%;
-  background: #2a2a2a;
-  border: 2px solid #444;
-  color: var(--accent-color);
-  font-size: 2.5rem;
-  text-align: center;
-  padding: 15px;
-  border-radius: 15px;
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  letter-spacing: 10px;
 }
-
-.pin-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-}
-
-.pin-grid button {
-  background: var(--card-bg);
+.btn-sm {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  background: var(--card);
   color: white;
-  border: 1px solid #333;
-  padding: 25px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border-radius: 12px;
   cursor: pointer;
 }
 
-.pin-grid button:active {
-  background: #444;
-  transform: scale(0.95);
-}
-
-/* --- CABECERAS --- */
-header {
-  background: var(--card-bg);
-  padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 20px;
-  text-align: center;
-  border: 1px solid #333;
-}
-
-.crear-mesa {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.crear-mesa input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #121212;
-  color: white;
-}
-
-.crear-mesa button {
-  background: var(--accent-color);
-  border: none;
-  padding: 0 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1.5rem;
-}
-
-/* --- GRID DE MESAS --- */
-.grid-mesas {
+/* Grid Mesas */
+.grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 15px;
 }
-
-.card-mesa {
-  background: var(--card-bg);
+.mesa-card {
+  background: var(--card);
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 12px;
   text-align: center;
+  border-bottom: 4px solid var(--neon);
   cursor: pointer;
-  border-bottom: 5px solid var(--accent-color);
-  transition: transform 0.1s;
+}
+.mesa-card.inactive {
+  border-color: #475569;
+  opacity: 0.6;
 }
 
-.card-mesa:active {
-  transform: scale(0.95);
-}
-.card-mesa h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: #888;
-}
-.card-mesa p {
-  margin: 10px 0 0 0;
-  font-size: 1.8rem;
+/* POS / Calculadora */
+.display-total {
+  font-size: 4rem;
+  text-align: center;
+  color: var(--neon);
   font-weight: bold;
+  margin: 20px 0;
 }
-
-/* --- VISTA COBRO --- */
-.main-display {
-  font-size: 4.5rem;
-  font-weight: 900;
-  color: var(--accent-color);
-  margin: 10px 0;
-}
-
-.grid-precios {
+.price-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
+  flex-grow: 1;
 }
-
-.btn {
-  padding: 30px;
-  font-size: 1.8rem;
-  font-weight: bold;
+.price-buttons button {
+  background: var(--card);
+  border: 1px solid #334155;
   border-radius: 15px;
-  border: none;
+  font-size: 1.5rem;
   color: white;
-  background: #2a2a2a;
-  border-bottom: 4px solid rgba(0, 0, 0, 0.4);
+  position: relative;
+  cursor: pointer;
 }
-
-.btn:active {
-  transform: translateY(4px);
-  border-bottom-width: 1px;
-}
-
-/* Colores por precio */
-.p1 {
-  border-color: #3498db;
-}
-.p15 {
-  border-color: #f1c40f;
-}
-.p2 {
-  border-color: #e67e22;
-}
-.p25 {
-  border-color: #2ecc71;
-}
-.p4 {
-  border-color: #9b59b6;
-}
-.p8 {
-  border-color: #e74c3c;
-}
-
-#btn-pagar {
-  width: 100%;
-  background: var(--accent-color);
+.price-buttons button small {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--neon);
   color: black;
-  border: none;
-  padding: 20px;
-  font-size: 1.5rem;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-pay {
+  background: var(--neon);
+  color: black;
   font-weight: bold;
-  border-radius: 15px;
-  margin-top: 20px;
-  cursor: pointer;
-}
-
-/* --- DASHBOARD ADMIN --- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.stats-grid .card {
-  background: var(--card-bg);
   padding: 20px;
   border-radius: 15px;
+  border: none;
+  font-size: 1.5rem;
+  margin-top: 20px;
+}
+
+/* Login */
+.login-container {
+  max-width: 320px;
+  margin: auto;
   text-align: center;
 }
-
-.stats-grid .card h3 {
-  font-size: 0.9rem;
-  color: #888;
-  margin: 0;
-}
-.stats-grid .card p {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--admin-color);
-  margin: 10px 0 0 0;
-}
-
-.btn-access {
+#pin-input {
   width: 100%;
-  background: var(--admin-color);
-  color: white;
+  font-size: 2rem;
+  text-align: center;
+  background: transparent;
   border: none;
+  color: var(--neon);
+  margin-bottom: 20px;
+  letter-spacing: 10px;
+}
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.numpad button {
+  padding: 20px;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--card);
+  color: white;
+}
+
+/* Modals */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-content {
+  background: var(--card);
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+}
+.bill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+}
+.bill-grid button {
   padding: 15px;
   border-radius: 10px;
-  font-weight: bold;
-}
-
-.btn-exit {
-  background: var(--danger-color);
-  color: white;
   border: none;
-  padding: 5px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+  background: #334155;
+  color: white;
+  font-size: 1.2rem;
+}
+.neon-text {
+  color: var(--neon);
+  font-size: 2.5rem;
+  font-weight: bold;
 }
