@@ -217,3 +217,19 @@ h1 span {
   color: black !important;
   border-radius: 15px !important;
 }
+@keyframes flash {
+  0% {
+    color: var(--neon);
+  }
+  50% {
+    color: white;
+    scale: 1.1;
+  }
+  100% {
+    color: var(--neon);
+  }
+}
+
+.flash-animation {
+  animation: flash 0.4s ease-out;
+}
