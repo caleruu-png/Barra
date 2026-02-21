@@ -3,29 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Barra Express - Solo Precios</title>
+    <title>TPV Barra Pro - Gestión de Mesas</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="tpv-container">
-        <header class="header">
-            <div class="display-container">
-                <span id="total-display">0.00</span><span class="currency">€</span>
+    <div id="vista-mesas" class="container">
+        <header class="header-mesas">
+            <h1>Control de Mesas</h1>
+            <div class="input-group">
+                <input type="text" id="nombre-mesa" placeholder="Nombre (Ej: Mesa 4, Juan...)">
+                <button onclick="crearMesa()" class="btn-crear">CREAR</button>
             </div>
-            <button id="btn-pagado" onclick="confirmarPago()">PAGADO / LIMPIAR</button>
         </header>
 
-        <div class="grid-precios">
-            <button class="btn azul" onclick="sumar(1)">1.00 €</button>
-            <button class="btn amarillo" onclick="sumar(1.5)">1.50 €</button>
+        <div id="grid-mesas" class="grid-mesas">
+            </div>
+    </div>
+
+    <div id="vista-cobro" class="container hidden">
+        <header class="header">
+            <button class="btn-volver" onclick="mostrarMesas()">⬅ Volver</button>
+            <h2 id="titulo-mesa-activa">Mesa</h2>
+            <div class="display-main">
+                <span id="total-display">0.00</span>€
+            </div>
+            
+            <div id="cambio-section" class="hidden">
+                <div class="entregado">Recibido: <span id="recibido-display">0.00</span>€</div>
+                <div class="cambio">DEVOLVER: <span id="devolver-display">0.00</span>€</div>
+            </div>
+            
+            <button id="btn-accion-principal" class="btn-pagar" onclick="gestionarFlujo()">COBRAR</button>
+        </header>
+
+        <div id="teclado-articulos" class="grid-precios">
+            <button class="btn precio azul" onclick="sumar(1)">1.00 €</button>
+            <button class="btn precio amarillo" onclick="sumar(1.5)">1.50 €</button>
             <button class="btn naranja" onclick="sumar(2)">2.00 €</button>
             <button class="btn verde" onclick="sumar(2.5)">2.50 €</button>
             <button class="btn morado" onclick="sumar(4)">4.00 €</button>
             <button class="btn rojo" onclick="sumar(8)">8.00 €</button>
         </div>
 
-        <button class="btn-deshacer" onclick="deshacer()">↩ Deshacer último error</button>
+        <div id="teclado-efectivo" class="grid-precios hidden">
+            <button class="btn billete b5" onclick="entregarEfectivo(5)">5 €</button>
+            <button class="btn billete b10" onclick="entregarEfectivo(10)">10 €</button>
+            <button class="btn billete b20" onclick="entregarEfectivo(20)">20 €</button>
+            <button class="btn billete b50" onclick="entregarEfectivo(50)">50 €</button>
+            <button class="btn-cancelar" onclick="cancelarCobro()">❌ Cancelar</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
