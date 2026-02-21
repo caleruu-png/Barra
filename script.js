@@ -1,7 +1,7 @@
 // CONFIGURACIÓN SUPABASE - COMPLETA CON TUS DATOS
 const SUPABASE_URL = "https://yfhzogdtiubkbzrxbugu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_4s7OZ9kj2QvNUOJDGkaPyw_vn9BWIeR";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentPin = "";
 let currentRole = "";
@@ -43,7 +43,7 @@ function logout() {
 
 // --- LÓGICA DE MESAS ---
 async function loadMesas(showInactiva = false) {
-    const { data } = await supabase.from('mesas').select('*').eq('activa', !showInactiva);
+    const { data } = await _supabase.from('mesas').select('*').eq('activa', !showInactiva);
     const container = document.getElementById('mesas-container');
     container.innerHTML = "";
     data.forEach(mesa => {
@@ -67,7 +67,7 @@ async function selectMesa(mesa) {
     showView('pos-screen');
     
     // Suscribirse a cambios en tiempo real para esta mesa
-    supabase.channel('custom-all-channel')
+    _supabase.channel('custom-all-channel')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${mesa.id}` }, payload => {
         currentTotal = payload.new.total;
         updatePOSDisplay();
@@ -88,7 +88,7 @@ async function addToAccount(price) {
     history.push(price);
     updatePOSDisplay();
     if (selectedMesaId) {
-        await supabase.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
+        await _supabase.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
     }
 }
 
@@ -98,7 +98,7 @@ async function undoLast() {
         currentTotal -= lastPrice;
         updatePOSDisplay();
         if (selectedMesaId) {
-            await supabase.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
+            await _supabase.from('mesas').update({ total: currentTotal }).eq('id', selectedMesaId);
         }
     }
 }
@@ -130,11 +130,11 @@ function addCash(amount) {
 
 async function finalizePayment() {
     // 1. Registrar Venta
-    await supabase.from('ventas').insert([{ monto: currentTotal }]);
+    await _supabase.from('ventas').insert([{ monto: currentTotal }]);
     
     // 2. Si es mesa, desactivar y limpiar
     if (selectedMesaId) {
-        await supabase.from('mesas').update({ total: 0, activa: false }).eq('id', selectedMesaId);
+        await _supabase.from('mesas').update({ total: 0, activa: false }).eq('id', selectedMesaId);
     }
     
     closeModal();
@@ -151,7 +151,7 @@ function backToMain() {
 }
 
 async function loadStats() {
-    const { data } = await supabase.from('ventas').select('monto');
+    const { data } = await _supabase.from('ventas').select('monto');
     const total = data.reduce((acc, v) => acc + parseFloat(v.monto), 0);
     document.getElementById('total-ventas-val').innerText = total.toFixed(2) + "€";
 }
