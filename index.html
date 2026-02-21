@@ -3,56 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Barra Pro - Gestión de Mesas</title>
+    <title>TPV Bar Cloud</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <div id="vista-mesas" class="container">
-        <header class="header-mesas">
-            <h1>Control de Mesas</h1>
-            <div class="input-group">
-                <input type="text" id="nombre-mesa" placeholder="Nombre (Ej: Mesa 4, Juan...)">
-                <button onclick="crearMesa()" class="btn-crear">CREAR</button>
+    <div id="app">
+        <section id="view-login" class="view">
+            <div class="login-container">
+                <h1>TPV CLOUD</h1>
+                <input type="password" id="pin-display" placeholder="PIN" readonly>
+                <div class="pin-grid">
+                    <button onclick="addPin('1')">1</button><button onclick="addPin('2')">2</button><button onclick="addPin('3')">3</button>
+                    <button onclick="addPin('4')">4</button><button onclick="addPin('5')">5</button><button onclick="addPin('6')">6</button>
+                    <button onclick="addPin('7')">7</button><button onclick="addPin('8')">8</button><button onclick="addPin('9')">9</button>
+                    <button onclick="clearPin()">C</button><button onclick="addPin('0')">0</button><button onclick="checkLogin()">OK</button>
+                </div>
             </div>
-        </header>
+        </section>
 
-        <div id="grid-mesas" class="grid-mesas">
+        <section id="view-admin" class="view hidden">
+            <header>
+                <h2>Dashboard Admin</h2>
+                <button onclick="logout()" class="btn-exit">Cerrar Sesión</button>
+            </header>
+            <div class="stats-grid">
+                <div class="card"><h3>Caja Actual</h3><p id="stat-caja">0.00€</p></div>
+                <div class="card"><h3>Ventas Hoy</h3><p id="stat-ventas">0.00€</p></div>
             </div>
-    </div>
+            <button onclick="cambiarVista('view-barra')" class="btn-access">Ir a Barra</button>
+        </section>
 
-    <div id="vista-cobro" class="container hidden">
-        <header class="header">
-            <button class="btn-volver" onclick="mostrarMesas()">⬅ Volver</button>
-            <h2 id="titulo-mesa-activa">Mesa</h2>
-            <div class="display-main">
-                <span id="total-display">0.00</span>€
-            </div>
+        <section id="view-barra" class="view hidden">
+            <header>
+                <button onclick="logout()">Logout</button>
+                <div class="crear-mesa">
+                    <input type="text" id="input-mesa" placeholder="Nombre Mesa/Cliente">
+                    <button onclick="dbCrearMesa()">+</button>
+                </div>
+            </header>
+            <div id="grid-mesas" class="grid-mesas"></div>
+        </section>
+
+        <section id="view-cobro" class="view hidden">
+            <header>
+                <button onclick="irAMesas()" id="btn-volver-mesas">⬅ Mesas</button>
+                <h2 id="mesa-titulo">Mesa</h2>
+                <div class="main-display"><span id="total-display">0.00</span>€</div>
+            </header>
             
-            <div id="cambio-section" class="hidden">
-                <div class="entregado">Recibido: <span id="recibido-display">0.00</span>€</div>
-                <div class="cambio">DEVOLVER: <span id="devolver-display">0.00</span>€</div>
+            <div id="teclado-precios" class="grid-precios">
+                <button class="btn p1" onclick="dbSumar(1)">1.00</button>
+                <button class="btn p15" onclick="dbSumar(1.5)">1.50</button>
+                <button class="btn p2" onclick="dbSumar(2)">2.00</button>
+                <button class="btn p25" onclick="dbSumar(2.5)">2.50</button>
+                <button class="btn p4" onclick="dbSumar(4)">4.00</button>
+                <button class="btn p8" onclick="dbSumar(8)">8.00</button>
             </div>
-            
-            <button id="btn-accion-principal" class="btn-pagar" onclick="gestionarFlujo()">COBRAR</button>
-        </header>
-
-        <div id="teclado-articulos" class="grid-precios">
-            <button class="btn precio azul" onclick="sumar(1)">1.00 €</button>
-            <button class="btn precio amarillo" onclick="sumar(1.5)">1.50 €</button>
-            <button class="btn naranja" onclick="sumar(2)">2.00 €</button>
-            <button class="btn verde" onclick="sumar(2.5)">2.50 €</button>
-            <button class="btn morado" onclick="sumar(4)">4.00 €</button>
-            <button class="btn rojo" onclick="sumar(8)">8.00 €</button>
-        </div>
-
-        <div id="teclado-efectivo" class="grid-precios hidden">
-            <button class="btn billete b5" onclick="entregarEfectivo(5)">5 €</button>
-            <button class="btn billete b10" onclick="entregarEfectivo(10)">10 €</button>
-            <button class="btn billete b20" onclick="entregarEfectivo(20)">20 €</button>
-            <button class="btn billete b50" onclick="entregarEfectivo(50)">50 €</button>
-            <button class="btn-cancelar" onclick="cancelarCobro()">❌ Cancelar</button>
-        </div>
+            <button id="btn-pagar" onclick="dbFinalizarVenta()">COBRAR</button>
+        </section>
     </div>
 
     <script src="script.js"></script>

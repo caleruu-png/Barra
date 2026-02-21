@@ -1,172 +1,250 @@
+/* VARIABLES DE COLOR */
 :root {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #ffffff;
-  --accent: #00ff88;
-  --danger: #ff4757;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #ffffff;
+  --accent-color: #00ff88; /* Verde Neón */
+  --danger-color: #ff4757; /* Rojo */
+  --admin-color: #3498db; /* Azul */
+  --font-main: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: "Segoe UI", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-main);
   margin: 0;
-  touch-action: manipulation;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
 }
 
-.container {
+#app {
   width: 100%;
   max-width: 500px;
-  margin: auto;
   padding: 15px;
 }
+
 .hidden {
   display: none !important;
 }
 
-/* Vista Mesas */
-.header-mesas {
+/* --- VISTA LOGIN --- */
+.login-container {
   text-align: center;
-  margin-bottom: 20px;
+  margin-top: 50px;
 }
-.input-group {
+
+#pin-display {
+  width: 100%;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  color: var(--accent-color);
+  font-size: 2.5rem;
+  text-align: center;
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  letter-spacing: 10px;
+}
+
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.pin-grid button {
+  background: var(--card-bg);
+  color: white;
+  border: 1px solid #333;
+  padding: 25px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.pin-grid button:active {
+  background: #444;
+  transform: scale(0.95);
+}
+
+/* --- CABECERAS --- */
+header {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.crear-mesa {
   display: flex;
   gap: 10px;
   margin-top: 15px;
 }
-input {
+
+.crear-mesa input {
   flex: 1;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #444;
-  background: #222;
+  background: #121212;
   color: white;
-  font-size: 1rem;
-}
-.btn-crear {
-  background: var(--accent);
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
 }
 
+.crear-mesa button {
+  background: var(--accent-color);
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+/* --- GRID DE MESAS --- */
 .grid-mesas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 15px;
 }
+
 .card-mesa {
-  background: var(--card);
+  background: var(--card-bg);
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 15px;
   text-align: center;
   cursor: pointer;
-  border: 1px solid #333;
+  border-bottom: 5px solid var(--accent-color);
   transition: transform 0.1s;
 }
+
 .card-mesa:active {
   transform: scale(0.95);
 }
 .card-mesa h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  color: #aaa;
+  margin: 0;
+  font-size: 1rem;
+  color: #888;
 }
-.card-mesa .monto {
-  font-size: 1.5rem;
+.card-mesa p {
+  margin: 10px 0 0 0;
+  font-size: 1.8rem;
   font-weight: bold;
-  color: var(--accent);
 }
 
-/* Vista Cobro */
-.header {
-  background: var(--card);
-  padding: 20px;
-  border-radius: 20px;
-  text-align: center;
-  margin-bottom: 20px;
-  position: relative;
-}
-.btn-volver {
-  position: absolute;
-  left: 15px;
-  top: 15px;
-  background: none;
-  border: none;
-  color: #888;
-  cursor: pointer;
-}
-.display-main {
-  font-size: 4rem;
+/* --- VISTA COBRO --- */
+.main-display {
+  font-size: 4.5rem;
   font-weight: 900;
-  color: var(--accent);
-}
-.btn-pagar {
-  width: 100%;
-  background: var(--accent);
-  border: none;
-  padding: 15px;
-  border-radius: 12px;
-  font-size: 1.4rem;
-  font-weight: bold;
-  margin-top: 10px;
+  color: var(--accent-color);
+  margin: 10px 0;
 }
 
 .grid-precios {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.btn {
-  border: none;
-  padding: 25px 0;
-  border-radius: 12px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  background: #2a2a2a;
-  border-bottom: 4px solid rgba(0, 0, 0, 0.3);
+  gap: 15px;
 }
 
-/* Colores de Billetes y Precios igual que antes */
-.azul {
-  border-color: #3498db;
-}
-.amarillo {
-  border-color: #f1c40f;
-}
-.naranja {
-  border-color: #e67e22;
-}
-.verde {
-  border-color: #2ecc71;
-}
-.morado {
-  border-color: #9b59b6;
-}
-.rojo {
-  border-color: #e74c3c;
-}
-.b5 {
-  background: #6ab04c;
-}
-.b10 {
-  background: #eb4d4b;
-}
-.b20 {
-  background: #22a6b3;
-}
-.b50 {
-  background: #f9ca24;
-  color: #000;
-}
-.btn-cancelar {
-  grid-column: span 2;
-  padding: 15px;
-  background: #444;
+.btn {
+  padding: 30px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  border-radius: 15px;
   border: none;
   color: white;
+  background: #2a2a2a;
+  border-bottom: 4px solid rgba(0, 0, 0, 0.4);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  border-bottom-width: 1px;
+}
+
+/* Colores por precio */
+.p1 {
+  border-color: #3498db;
+}
+.p15 {
+  border-color: #f1c40f;
+}
+.p2 {
+  border-color: #e67e22;
+}
+.p25 {
+  border-color: #2ecc71;
+}
+.p4 {
+  border-color: #9b59b6;
+}
+.p8 {
+  border-color: #e74c3c;
+}
+
+#btn-pagar {
+  width: 100%;
+  background: var(--accent-color);
+  color: black;
+  border: none;
+  padding: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 15px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+/* --- DASHBOARD ADMIN --- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stats-grid .card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.stats-grid .card h3 {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0;
+}
+.stats-grid .card p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--admin-color);
+  margin: 10px 0 0 0;
+}
+
+.btn-access {
+  width: 100%;
+  background: var(--admin-color);
+  color: white;
+  border: none;
+  padding: 15px;
   border-radius: 10px;
+  font-weight: bold;
+}
+
+.btn-exit {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
 }
