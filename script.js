@@ -192,12 +192,8 @@ function renderTicket() {
   btnConsumo.disabled = false;
 }
 
-function actualizarTotales(totalConIva) {
-  const iva      = totalConIva - totalConIva / 1.21;
-  const subtotal = totalConIva - iva;
-  document.getElementById('subtotal').textContent = formatEur(subtotal);
-  document.getElementById('iva').textContent      = formatEur(iva);
-  document.getElementById('total').textContent    = formatEur(totalConIva);
+function actualizarTotales(total) {
+  document.getElementById('total').textContent = formatEur(total);
 }
 
 /* ── Cobrar ──────────────────────────────────────────────────────────── */
@@ -211,31 +207,48 @@ window.cobrar = async function () {
 
   try {
     const totalBruto = carrito.reduce((s, c) => s + c.producto.precio * c.cantidad, 0);
-    const iva        = totalBruto - totalBruto / 1.21;
+    const payload    = { total: +totalBruto.toFixed(2) };
 
-    const { data: ventaData, error: ventaError } = await db
-      .from('ventas')
-      .insert({ total: +totalBruto.toFixed(2), iva: +iva.toFixed(2) })
-      .select().single();
-    if (ventaError) throw ventaError;
+    // PASO 1 — insertar venta
+    console.log('[COBRO] Paso 1 — payload ventas:', payload);
+    const respVenta = await db.from('ventas').insert(payload).select();
+    console.log('[COBRO] Paso 1 — respuesta:', JSON.stringify(respVenta));
 
+    if (respVenta.error) {
+      toast(`Error ventas: ${respVenta.error.message} | código: ${respVenta.error.code}`, 'error');
+      throw respVenta.error;
+    }
+    if (!respVenta.data?.length) {
+      toast('Error: la tabla "ventas" no devolvió datos. Revisa el nombre de columnas o RLS.', 'error');
+      throw new Error('ventas insert returned no data');
+    }
+
+    const ventaId = respVenta.data[0].id;
+    console.log('[COBRO] ventaId:', ventaId);
+
+    // PASO 2 — insertar detalles
     const detalles = carrito.map(({ producto, cantidad }) => ({
-      venta_id:    ventaData.id,
-      producto_id: producto.id,
+      venta_id:        ventaId,
+      producto_id:     producto.id,
       cantidad,
-      precio_unit: producto.precio,
-      subtotal:    +(producto.precio * cantidad).toFixed(2),
+      precio_unitario: producto.precio,
     }));
-    const { error: detError } = await db.from('venta_detalles').insert(detalles);
-    if (detError) throw detError;
+    console.log('[COBRO] Paso 2 — payload venta_detalles:', JSON.stringify(detalles));
+    const respDet = await db.from('venta_detalles').insert(detalles).select();
+    console.log('[COBRO] Paso 2 — respuesta:', JSON.stringify(respDet));
 
-    toast(`✓ Venta #${ventaData.id} registrada`);
+    if (respDet.error) {
+      toast(`Error venta_detalles: ${respDet.error.message} | código: ${respDet.error.code}`, 'error');
+      throw respDet.error;
+    }
+
+    toast(`✓ Venta #${ventaId} registrada`);
     carrito = [];
     renderTicket();
     await cargarProductos();
+
   } catch (err) {
-    console.error(err);
-    toast('Error al registrar la venta', 'error');
+    console.error('[COBRO] Error completo:', err);
   } finally {
     cobrando = false;
     btn.innerHTML = orig;
@@ -289,20 +302,21 @@ window.abrirCierre = async function () {
   document.getElementById('modal-fecha').textContent =
     hoy.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-  ['cierre-num-ventas','cierre-iva','cierre-total'].forEach(id =>
+  ['cierre-num-ventas','cierre-total'].forEach(id =>
     document.getElementById(id).textContent = '—'
   );
 
   const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).toISOString();
   const fin    = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 1).toISOString();
 
-  const { data, error } = await db.from('ventas').select('total, iva')
+  const { data, error } = await db.from('ventas').select('total')
     .gte('created_at', inicio).lt('created_at', fin);
   if (error) { toast('Error al leer ventas', 'error'); return; }
 
+  const totalDia  = data.reduce((s,v) => s + Number(v.total||0), 0);
+
   document.getElementById('cierre-num-ventas').textContent = data.length;
-  document.getElementById('cierre-iva').textContent        = formatEur(data.reduce((s,v) => s + Number(v.iva||0), 0));
-  document.getElementById('cierre-total').textContent      = formatEur(data.reduce((s,v) => s + Number(v.total||0), 0));
+  document.getElementById('cierre-total').textContent      = formatEur(totalDia);
 };
 
 window.cerrarCierre = () => document.getElementById('modal-cierre').classList.remove('visible');
@@ -426,7 +440,7 @@ window.cargarEstadisticas = async function () {
   const desdeISO = desde.toISOString();
 
   // Reset KPIs
-  ['kpi-ventas','kpi-total','kpi-iva','kpi-medio'].forEach(id =>
+  ['kpi-ventas','kpi-total','kpi-medio'].forEach(id =>
     document.getElementById(id).textContent = '—'
   );
   document.getElementById('chart-dias').innerHTML = '<div class="skeleton-loader">Cargando…</div>';
@@ -434,7 +448,7 @@ window.cargarEstadisticas = async function () {
 
   // Obtener ventas
   const { data: ventas, error: eVentas } = await db
-    .from('ventas').select('id, total, iva, created_at').gte('created_at', desdeISO);
+    .from('ventas').select('id, total, created_at').gte('created_at', desdeISO);
   if (eVentas) { toast('Error al cargar estadísticas', 'error'); return; }
 
   // Obtener detalles para top productos
@@ -445,12 +459,10 @@ window.cargarEstadisticas = async function () {
   // ── KPIs ──────────────────────────────────────────────────────────
   const numVentas  = ventas.length;
   const totalBruto = ventas.reduce((s, v) => s + Number(v.total || 0), 0);
-  const totalIva   = ventas.reduce((s, v) => s + Number(v.iva   || 0), 0);
   const ticketMed  = numVentas ? totalBruto / numVentas : 0;
 
   document.getElementById('kpi-ventas').textContent = numVentas;
   document.getElementById('kpi-total').textContent  = formatEur(totalBruto);
-  document.getElementById('kpi-iva').textContent    = formatEur(totalIva);
   document.getElementById('kpi-medio').textContent  = formatEur(ticketMed);
 
   // ── Gráfico de barras por día ─────────────────────────────────────
